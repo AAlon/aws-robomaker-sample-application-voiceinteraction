@@ -17,4 +17,25 @@ env:
 install:
   - git clone https://github.com/ros-industrial/industrial_ci.git robot_ws/.ros_ci
 script:
-  - cd robot_ws && .ros_ci/travis.sh
+  - echo "Dummy build; in reality, something like cd robot_ws && .ros_ci/travis.sh"
+
+-: &s3_deploy
+    provider: s3
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_KEY
+    bucket: "avishaya-devdsk-backup"
+    local_dir: ./robot_ws
+    skip_cleanup: true
+    wait-until-deployed: true
+deploy:
+  # release a snapshot for each commit on any branch except master
+  - <<: *s3_deploy
+    on:
+      all_branches: true
+      condition: $TRAVIS_BRANCH == master
+    upload-dir: snapshot/${TRAVIS_COMMIT::7}
+# release a version when on master and commit is tagged
+  - <<: *s3_deploy
+    on:
+      tags: true
+    upload-dir: ${TRAVIS_TAG:1}
