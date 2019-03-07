@@ -20,13 +20,10 @@ script:
   - python .ros_ci/update_version.py "version.json" "`git describe --abbrev=0 --tags 2>&1`"
   - git diff
   - .ros_ci/ce_build.sh
-
 before_deploy:
   - cp "version.json" "shared/version.json"
   - export SA_VERSION=`cat shared/version.json | jq -r .application_version`
-
 deploy:
-  # release a snapshot for each commit on any branch except master
   provider: s3
   access_key_id: $AWS_ACCESS_KEY_ID
   secret_access_key: $AWS_SECRET_KEY
