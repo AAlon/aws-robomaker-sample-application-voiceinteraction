@@ -18,11 +18,12 @@ install:
   - git clone https://github.com/ros-industrial/industrial_ci.git robot_ws/.old_ci
   - git clone https://github.com/AAlon/travis-scripts.git .ros_ci
 script:
+  - python .ros_ci/update_version.py "version.json" "`git describe --abbrev=0 --tags 2>&1`"
+  - git diff
   - .ros_ci/ce_build.sh
 
 before_deploy:
-  - python shared/.ros_ci/update_version.py "shared/version.json" "`git describe --abbrev=0 --tags 2>&1`"
-  - git diff
+  - cp "version.json" "shared/version.json"
   - export SA_VERSION=`cat shared/version.json | jq -r .application_version`
 
 deploy:
