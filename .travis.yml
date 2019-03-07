@@ -22,6 +22,7 @@ script:
 
 before_deploy:
   - python shared/.ros_ci/update_version.py "shared/version.json" "`git describe --abbrev=0 --tags 2>&1`"
+  - git diff
   - export SA_VERSION=`cat shared/version.json | jq -r .application_version`
 
 deploy:
