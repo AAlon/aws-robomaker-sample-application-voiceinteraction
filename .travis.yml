@@ -33,10 +33,6 @@ before_deploy:
   - echo "Printing version.json"
   - bash -c "echo `cat shared/version.json`"
   - export SA_VERSION=`cat shared/version.json | jq -r .application_version`
-  - git config --global user.email "build@travis-ci.com"
-  - git config --global user.name "Travis CI"
-  - git tag $SA_VERSION -a -m "Tagging version $SA_VERSION"
-  - git push origin $TRAVIS_BRANCH --tags 2>&1
 
 -: &s3_deploy
     provider: s3
