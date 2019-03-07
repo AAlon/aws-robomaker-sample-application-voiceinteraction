@@ -26,14 +26,17 @@ script:
     -e SA_NAME="$SA_NAME" --name "$ROS_DISTRO"-container -dit ros:"$ROS_DISTRO"-ros-core
     /bin/bash
   - docker exec "$ROS_DISTRO"-container /bin/bash -c 'mkdir -p /"$ROS_DISTRO"_ws/'
-  - docker cp $TRAVIS_BUILD_DIR "$ROS_DISTRO"-container:/"$ROS_DISTRO"_ws/
-  - docker exec "$ROS_DISTRO"-container /bin/bash -c 'sh /shared/.ros_ci/ros"$ROS_VERSION"_sa_build.sh' || travis_terminate 1;
-  
+  - docker cp $TRAVIS_BUILD_DIR "$ROS_DISTRO"-container:/"$ROS_DISTRO"_ws/$SA_NAME/
+
 before_deploy:
-  - python .internal_ci/update_version.py "shared/version.json"
+  - python .internal_ci/update_version.py "shared/version.json" "`git describe --abbrev=0 --tags`"
   - echo "Printing version.json"
   - bash -c "echo `cat shared/version.json`"
   - export SA_VERSION=`cat shared/version.json | jq -r .application_version`
+  - git config --global user.email "build@travis-ci.com"
+  - git config --global user.name "Travis CI"
+  - git tag $SA_VERSION -a -m "Tagging version $SA_VERSION"
+  - git push origin $TRAVIS_BRANCH --tags 2>&1
 
 -: &s3_deploy
     provider: s3
