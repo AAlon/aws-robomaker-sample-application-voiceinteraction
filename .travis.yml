@@ -23,7 +23,7 @@ install:
 script:
   - echo "Dummy build; in reality, something like cd robot_ws && .ros_ci/travis.sh"
 
-pre_deploy:
+before_deploy:
   - python .internal_ci/update_version.py
   - echo "Printing version.json"
   - cat version.json
