@@ -11,9 +11,7 @@ notifications:
 env:
   matrix:
     - ROS_DISTRO="kinetic" ROS_REPOSITORY_PATH=http://packages.ros.org/ros/ubuntu UPSTREAM_WORKSPACE=file $ROSINSTALL_FILENAME="robot_ws/.rosinstall"
-    - ROS_DISTRO="kinetic" ROS_REPOSITORY_PATH=http://packages.ros.org/ros-shadow-fixed/ubuntu UPSTREAM_WORKSPACE=file $ROSINSTALL_FILENAME="robot_ws/.rosinstall"
     - ROS_DISTRO="kinetic" ROS_REPOSITORY_PATH=http://packages.ros.org/ros/ubuntu
-    - ROS_DISTRO="kinetic" ROS_REPOSITORY_PATH=http://packages.ros.org/ros-shadow-fixed/ubuntu
   global:
   - secure: K27n9xDcQd4DvviQitdbJ7/opk27/+0r0J1aR06zpSfPNc85p/VumWlL53e9hpRSfd70EUYNCP3ExrYw8OxGuVjAi/9PpJ9x/XMqSEgd780IrBvDrrnKuDJ7g2mhI77qXDld0+7wpWRuZsUFMvu5zQ160/FOADtRFpdbOw/rztdk+5khQ5phw6ZPwqpJ7IUaXll+MKZCRW6bXgbOVOTMYbVVvSHX7avLKAeXLKE63xQr0joQqHcqVDXG4r7a9NB/hCxh++afpvVawfPO/gEcNIAEJJB0Mo3wy6AHOEy1VolPnZD1BnKxJkxu9EIrrvqHGsXZ1dnqtQ/DLjKhT3wAruo1XXXzCq0Ipcq/aPArHuWT5+9vmge+UgJ+vBS5nH2IAFREyor3x8UchjcYlLSGRGiOpubCYCTWVTb39Gu/rk+x7tKExcnhy5pUUe7uh6tm0rg0poohem8SZ66IiTcXf6rR2276QUlzkDKsqo7JUjJwO0MdeXZWd7uOhzr04A1SDk1fbcahAXDgg7zqoYiiGqnGrzrpmT8GHgrtS60Au/Y9WDWaJe1Jcl9POBoB537UuTlVjME/XkZaiai08AyH6+rGYJerJNRO/E5aFBLP3XHiR6THIOjinQyhGBIH3BzUucuT55k5SVoxPsuxvmVYEX8knVZ8VHTIqfkh/kuYO4g=
   - secure: l4BiuX9rCIWScLQtVyPKEwhOWiyV1oo00WBSWQ2y3iHc9gOa9+sdhjrp6RpcVOUgxpmNMjLfu9YdT6v6NdNOyDdqsr+TfqJ05smCqNEJD6nh77xt/tyIC6ZQFvoXLQfnufDuBNSdkjwLhztdVD0x8oukNUYJrSTCmLxxe1NR1ROgQhvHYjjfKE06zFEGlr1b5UWP4ASypV9VWcrAcRMXy/Tp0JFXZ9uMVRrT2tXx9rbXaCt4m4QFvuKz/1eOtz1YUWV1ni+AFZPXYJv8HS4zkRiycjbtItdU5IujVoBIFQ/eKtxAlBDGi/Ix+7GPNn+yAz8++KpoWl/mTzAZQ2HSsQO3vV6X3AfEg+eq/4T+QiB6VrtnjriQSC8GEAICOFCpHAcI9gBM0f6HTHQc5BW/JGo6EJVN3iRx310IhkN2IgU5pwChtpcsjmzU5pOXnimkKKsFazqlQRLuPxYArPuG3PdE7TOS3rzac/uQs8dCUkPqaoe+PbfasTASlr0vHmPcMChS3DwkymnygAZJx5tVsUqJODXPlEDksBeYS0MDom0sEaSn+ssCrYUwMxKOMjoAmlJ6w3VK7rspVmop+dadzqLvVF551jNSM+lPqr2Zvba717BrAWO4MN0r54ib+QtmiobTKtNxE3MXlLPZSm3X3sd2PI4FDmp3AH2ejByf9+k=
@@ -27,12 +25,13 @@ before_deploy:
   - python .internal_ci/update_version.py
   - echo "Printing version.json"
   - bash -c "echo `cat version.json`"
+  - export SA_VERSION=`cat version.json | jq -r .application_version`
 
 -: &s3_deploy
     provider: s3
     access_key_id: $AWS_ACCESS_KEY_ID
     secret_access_key: $AWS_SECRET_KEY
-    bucket: "avishaya-devdsk-backup"
+    bucket: $S3_BUCKET_NAME
     local_dir: ./robot_ws
     skip_cleanup: true
     wait-until-deployed: true
@@ -42,7 +41,7 @@ deploy:
     on:
       all_branches: true
       condition: $TRAVIS_BRANCH == master
-    upload-dir: snapshot/${TRAVIS_COMMIT::7}
+    upload-dir: $SA_NAME/$SA_VERSION
 # release a version when on master and commit is tagged
   - <<: *s3_deploy
     on:
