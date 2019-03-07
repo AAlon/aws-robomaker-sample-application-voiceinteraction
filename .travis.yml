@@ -18,40 +18,21 @@ install:
   - git clone https://github.com/ros-industrial/industrial_ci.git robot_ws/.old_ci
   - git clone https://github.com/AAlon/travis-scripts.git .ros_ci
 script:
-  - chmod +x .ros_ci/*
-  - mkdir shared/
-  - mv .ros_ci/ shared/
-  - docker pull ros:"$ROS_DISTRO"-ros-core
-  - docker run -v "$PWD/shared:/shared" -e ROS_DISTRO="$ROS_DISTRO" -e ROS_VERSION="$ROS_VERSION"
-    -e SA_NAME="$SA_NAME" --name "$ROS_DISTRO"-container -dit ros:"$ROS_DISTRO"-ros-core
-    /bin/bash
-  - docker exec "$ROS_DISTRO"-container /bin/bash -c 'mkdir -p /"$ROS_DISTRO"_ws/'
-  - docker cp $TRAVIS_BUILD_DIR "$ROS_DISTRO"-container:/"$ROS_DISTRO"_ws/$SA_NAME/
-  - docker exec "$ROS_DISTRO"-container /bin/bash -c 'sh /shared/.ros_ci/ros"$ROS_VERSION"_sa_build.sh' || travis_terminate 1;
-  
+  - .ros_ci/ce_build.sh
+
 before_deploy:
   - python shared/.ros_ci/update_version.py "shared/version.json" "`git describe --abbrev=0 --tags 2>&1`"
-  - echo "Printing version.json"
-  - bash -c "echo `cat shared/version.json`"
   - export SA_VERSION=`cat shared/version.json | jq -r .application_version`
 
--: &s3_deploy
-    provider: s3
-    access_key_id: $AWS_ACCESS_KEY_ID
-    secret_access_key: $AWS_SECRET_KEY
-    bucket: $S3_BUCKET_NAME
-    local_dir: shared
-    skip_cleanup: true
-    wait-until-deployed: true
 deploy:
   # release a snapshot for each commit on any branch except master
-  - <<: *s3_deploy
-    on:
-      all_branches: true
-      condition: $TRAVIS_BRANCH == master
-    upload-dir: $SA_NAME/$SA_VERSION
-# release a version when on master and commit is tagged
-  - <<: *s3_deploy
-    on:
-      tags: true
-    upload-dir: ${TRAVIS_TAG:1}
+  provider: s3
+  access_key_id: $AWS_ACCESS_KEY_ID
+  secret_access_key: $AWS_SECRET_KEY
+  bucket: $S3_BUCKET_NAME
+  local_dir: shared
+  skip_cleanup: true
+  wait-until-deployed: true
+  on:
+    branch: master
+  upload-dir: $SA_NAME/$SA_VERSION
