@@ -18,7 +18,6 @@ install:
   - git clone https://github.com/AAlon/travis-scripts.git .ros_ci
 script:
   - python .ros_ci/update_version.py "version.json" "`git describe --abbrev=0 --tags 2>&1`"
-  - git diff
   - .ros_ci/ce_build.sh
 before_deploy:
   - cp "version.json" "shared/version.json"
