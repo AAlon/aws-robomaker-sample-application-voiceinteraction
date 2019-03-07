@@ -27,7 +27,8 @@ script:
     /bin/bash
   - docker exec "$ROS_DISTRO"-container /bin/bash -c 'mkdir -p /"$ROS_DISTRO"_ws/'
   - docker cp $TRAVIS_BUILD_DIR "$ROS_DISTRO"-container:/"$ROS_DISTRO"_ws/$SA_NAME/
-
+  - docker exec "$ROS_DISTRO"-container /bin/bash -c 'sh /shared/.ros_ci/ros"$ROS_VERSION"_sa_build.sh' || travis_terminate 1;
+  
 before_deploy:
   - python shared/.ros_ci/update_version.py "shared/version.json" "`git describe --abbrev=0 --tags 2>&1`"
   - echo "Printing version.json"
