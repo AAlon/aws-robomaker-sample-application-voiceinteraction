@@ -19,6 +19,7 @@ env:
   - NO_TEST=true
 install:
 - git clone https://github.com/AAlon/travis-scripts.git .ros_ci
+- .ros_ci/aws_cli_credentials.sh
 - cat .ros_ci/ssh-config >> ~/.ssh/config
 script:
 - python .ros_ci/update_version.py "version.json" "`git describe --abbrev=0 --tags
@@ -36,7 +37,8 @@ before_deploy:
 - export SA_NAME_WITHOUT_DASHES=`echo $SA_NAME | sed -e 's/-//g'`
 - export CODE_PIPELINE_NAME=`aws codepipeline list-pipelines | jq -r '.pipelines |
   .[] | .name' | grep "sam.*${SA_NAME_WITHOUT_DASHES}pipeline"`
-- env
+- bash -c "env"
+- echo `env`
 deploy:
   provider: s3
   access_key_id: "$AWS_ACCESS_KEY_ID"
@@ -53,4 +55,5 @@ after_success:
 before_install:
 - openssl aes-256-cbc -K $encrypted_c05b534143ea_key -iv $encrypted_c05b534143ea_iv
   -in github_deploy.pem.enc -out github_deploy.pem -d
+- eval `ssh-agent -s`
 - chmod 400 github_deploy.pem && mv github_deploy.pem ~/.ssh/ && ssh-add ~/.ssh/github_deploy.pem
