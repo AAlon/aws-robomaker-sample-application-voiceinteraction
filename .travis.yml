@@ -23,8 +23,7 @@ env:
   - AWS_DEFAULT_REGION=us-west-2
 install:
 - git clone https://github.com/AAlon/travis-scripts.git .ros_ci
-- cat .ros_ci/ssh-config >> ~/.ssh/config
-- eval `ssh-agent -s`
+- cat .ros_ci/ssh-config >> ~/.ssh/config && eval `ssh-agent -s`
 - chmod 400 github_deploy.pem && mv github_deploy.pem ~/.ssh/ && ssh-add ~/.ssh/github_deploy.pem
 script:
 - python .ros_ci/update_version.py "version.json" "`git describe --abbrev=0 --tags 2>&1`"
