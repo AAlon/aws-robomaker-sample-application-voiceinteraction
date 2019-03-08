@@ -1,16 +1,16 @@
-sudo: required 
-language: generic 
+sudo: required
+language: generic
 compiler:
-  - gcc
+- gcc
 notifications:
   email:
     on_success: change
     on_failure: always
     recipients:
-      - ros-contributions@amazon.com
+    - ros-contributions@amazon.com
 env:
   matrix:
-    - ROS_DISTRO=kinetic ROS_VERSION=1
+  - ROS_DISTRO=kinetic ROS_VERSION=1
   global:
   - secure: K27n9xDcQd4DvviQitdbJ7/opk27/+0r0J1aR06zpSfPNc85p/VumWlL53e9hpRSfd70EUYNCP3ExrYw8OxGuVjAi/9PpJ9x/XMqSEgd780IrBvDrrnKuDJ7g2mhI77qXDld0+7wpWRuZsUFMvu5zQ160/FOADtRFpdbOw/rztdk+5khQ5phw6ZPwqpJ7IUaXll+MKZCRW6bXgbOVOTMYbVVvSHX7avLKAeXLKE63xQr0joQqHcqVDXG4r7a9NB/hCxh++afpvVawfPO/gEcNIAEJJB0Mo3wy6AHOEy1VolPnZD1BnKxJkxu9EIrrvqHGsXZ1dnqtQ/DLjKhT3wAruo1XXXzCq0Ipcq/aPArHuWT5+9vmge+UgJ+vBS5nH2IAFREyor3x8UchjcYlLSGRGiOpubCYCTWVTb39Gu/rk+x7tKExcnhy5pUUe7uh6tm0rg0poohem8SZ66IiTcXf6rR2276QUlzkDKsqo7JUjJwO0MdeXZWd7uOhzr04A1SDk1fbcahAXDgg7zqoYiiGqnGrzrpmT8GHgrtS60Au/Y9WDWaJe1Jcl9POBoB537UuTlVjME/XkZaiai08AyH6+rGYJerJNRO/E5aFBLP3XHiR6THIOjinQyhGBIH3BzUucuT55k5SVoxPsuxvmVYEX8knVZ8VHTIqfkh/kuYO4g=
   - secure: l4BiuX9rCIWScLQtVyPKEwhOWiyV1oo00WBSWQ2y3iHc9gOa9+sdhjrp6RpcVOUgxpmNMjLfu9YdT6v6NdNOyDdqsr+TfqJ05smCqNEJD6nh77xt/tyIC6ZQFvoXLQfnufDuBNSdkjwLhztdVD0x8oukNUYJrSTCmLxxe1NR1ROgQhvHYjjfKE06zFEGlr1b5UWP4ASypV9VWcrAcRMXy/Tp0JFXZ9uMVRrT2tXx9rbXaCt4m4QFvuKz/1eOtz1YUWV1ni+AFZPXYJv8HS4zkRiycjbtItdU5IujVoBIFQ/eKtxAlBDGi/Ix+7GPNn+yAz8++KpoWl/mTzAZQ2HSsQO3vV6X3AfEg+eq/4T+QiB6VrtnjriQSC8GEAICOFCpHAcI9gBM0f6HTHQc5BW/JGo6EJVN3iRx310IhkN2IgU5pwChtpcsjmzU5pOXnimkKKsFazqlQRLuPxYArPuG3PdE7TOS3rzac/uQs8dCUkPqaoe+PbfasTASlr0vHmPcMChS3DwkymnygAZJx5tVsUqJODXPlEDksBeYS0MDom0sEaSn+ssCrYUwMxKOMjoAmlJ6w3VK7rspVmop+dadzqLvVF551jNSM+lPqr2Zvba717BrAWO4MN0r54ib+QtmiobTKtNxE3MXlLPZSm3X3sd2PI4FDmp3AH2ejByf9+k=
@@ -18,24 +18,26 @@ env:
   - SA_PACKAGE_NAME=voice_interaction_robot
   - NO_TEST=true
 install:
-  - git clone https://github.com/AAlon/travis-scripts.git .ros_ci
+- git clone https://github.com/AAlon/travis-scripts.git .ros_ci
 script:
-  - python .ros_ci/update_version.py "version.json" "`git describe --abbrev=0 --tags 2>&1`"
-  - .ros_ci/ce_build.sh
+- python .ros_ci/update_version.py "version.json" "`git describe --abbrev=0 --tags
+  2>&1`"
+- ".ros_ci/ce_build.sh"
 before_deploy:
-  - export SA_VERSION=`cat version.json | jq -r .application_version`
-  - mkdir $SA_VERSION && mv shared/* $SA_VERSION && mv $SA_VERSION shared/
-  - cp "version.json" "shared/version.json"
-  - pip install --user awscli
-  - export S3_BUCKET_NAME=`aws s3 ls | grep travissourcebucket | awk '{print $3}'`
-  - export SA_NAME_WITHOUT_DASHES=`echo $SA_NAME | sed -e 's/-//g'`
-  - export CODE_PIPELINE_NAME=`aws codepipeline list-pipelines | jq -r '.pipelines | .[] | .name' | grep "sam.*${SA_NAME_WITHOUT_DASHES}pipeline"`
-  - env
+- export SA_VERSION=`cat version.json | jq -r .application_version`
+- mkdir $SA_VERSION && mv shared/* $SA_VERSION && mv $SA_VERSION shared/
+- cp "version.json" "shared/version.json"
+- pip install --user awscli
+- export S3_BUCKET_NAME=`aws s3 ls | grep travissourcebucket | awk '{print $3}'`
+- export SA_NAME_WITHOUT_DASHES=`echo $SA_NAME | sed -e 's/-//g'`
+- export CODE_PIPELINE_NAME=`aws codepipeline list-pipelines | jq -r '.pipelines |
+  .[] | .name' | grep "sam.*${SA_NAME_WITHOUT_DASHES}pipeline"`
+- env
 deploy:
   provider: s3
-  access_key_id: $AWS_ACCESS_KEY_ID
-  secret_access_key: $AWS_SECRET_KEY
-  bucket: $S3_BUCKET_NAME
+  access_key_id: "$AWS_ACCESS_KEY_ID"
+  secret_access_key: "$AWS_SECRET_KEY"
+  bucket: "$S3_BUCKET_NAME"
   local_dir: shared
   skip_cleanup: true
   wait-until-deployed: true
@@ -43,4 +45,7 @@ deploy:
     branch: master
   upload-dir: travis/$SA_NAME
 after_success:
-  - aws codepipeline start-pipeline-execution --name $CODE_PIPELINE_NAME
+- aws codepipeline start-pipeline-execution --name $CODE_PIPELINE_NAME
+before_install:
+- openssl aes-256-cbc -K $encrypted_c05b534143ea_key -iv $encrypted_c05b534143ea_iv
+  -in github_deploy.pem.enc -out github_deploy.pem -d
