@@ -20,8 +20,6 @@ env:
   - NO_TEST=true
 install:
 - git clone https://github.com/AAlon/travis-scripts.git .ros_ci
-- chmod +x .ros_ci/aws_cli_credentials.sh
-- .ros_ci/aws_cli_credentials.sh
 - aws s3 ls
 - bash -c "aws s3 ls"
 - echo `aws s3 ls`
