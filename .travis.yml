@@ -28,9 +28,9 @@ before_install:
 install:
 - git clone https://github.com/AAlon/travis-scripts.git .ros_ci
 script:
+- . .ros_ci/add_tag.sh
 - .ros_ci/ce_build.sh
 before_deploy:
-- . .ros_ci/add_tag.sh
 - . .ros_ci/before_deploy.sh
 deploy:
   provider: s3
