@@ -26,10 +26,8 @@ install:
 - cat .ros_ci/ssh-config >> ~/.ssh/config && eval `ssh-agent -s`
 - chmod 400 github_deploy.pem && mv github_deploy.pem ~/.ssh/ && ssh-add ~/.ssh/github_deploy.pem
 script:
-- python .ros_ci/update_version.py "version.json" "`git describe --abbrev=0 --tags 2>&1`"
-- export SA_VERSION=`cat version.json | jq -r .application_version`
-- chmod +x .ros_ci/add_tag.sh && .ros_ci/add_tag.sh
-- ".ros_ci/ce_build.sh"
+- . .ros_ci/add_tag.sh
+- .ros_ci/ce_build.sh
 before_deploy:
 - . .ros_ci/before_deploy.sh
 deploy:
@@ -44,7 +42,7 @@ deploy:
     branch: master
   upload-dir: travis/$SA_NAME
 after_success:
-- aws codepipeline start-pipeline-execution --name $CODE_PIPELINE_NAME
+- .ros_ci/post_deploy.sh
 before_install:
 - pip install --user awscli
 - openssl aes-256-cbc -K $encrypted_c05b534143ea_key -iv $encrypted_c05b534143ea_iv
