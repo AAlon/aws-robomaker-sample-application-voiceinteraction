@@ -18,8 +18,8 @@ env:
   - SA_NAME=voice-interaction
   - SA_PACKAGE_NAME=voice_interaction_robot
   - NO_TEST=true
-  - GH_USER_NAME="TravisCI"
-  - GH_USER_EMAIL="bot@travis-ci.org"
+  - GH_USER_NAME="travis-ci"
+  - GH_USER_EMAIL="travis@travis-ci.org"
 install:
 - git clone https://github.com/AAlon/travis-scripts.git .ros_ci
 - aws s3 ls
