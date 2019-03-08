@@ -22,35 +22,16 @@ env:
   - GH_USER_EMAIL="travis@travis-ci.org"
 install:
 - git clone https://github.com/AAlon/travis-scripts.git .ros_ci
-- aws s3 ls
-- bash -c "aws s3 ls"
-- echo `aws s3 ls`
 - cat .ros_ci/ssh-config >> ~/.ssh/config
-- cat ~/.ssh/config
 - eval `ssh-agent -s`
-- cat github_deploy.pem
 - chmod 400 github_deploy.pem && mv github_deploy.pem ~/.ssh/ && ssh-add ~/.ssh/github_deploy.pem
-- echo `ssh -T git@github.com`
 script:
-- python .ros_ci/update_version.py "version.json" "`git describe --abbrev=0 --tags
-  2>&1`"
+- python .ros_ci/update_version.py "version.json" "`git describe --abbrev=0 --tags 2>&1`"
 - export SA_VERSION=`cat version.json | jq -r .application_version`
-- git config --global user.email "${GH_USER_EMAIL}"
-- git config --global user.name "${GH_USER_NAME}"
-- git remote set-url origin git@github.com:${TRAVIS_REPO_SLUG}.git
-- git tag -a $SA_VERSION -m "Release $SA_VERSION"
-- git push origin $SA_VERSION
-- echo "Updated repo tag."
+- chmod +x .ros_ci/add_tag.sh && .ros_ci/add_tag.sh
 - ".ros_ci/ce_build.sh"
 before_deploy:
-- mkdir $SA_VERSION && mv shared/* $SA_VERSION && mv $SA_VERSION shared/
-- cp "version.json" "shared/version.json"
-- export S3_BUCKET_NAME=`aws s3 ls | grep travissourcebucket | awk '{print $3}'`
-- export SA_NAME_WITHOUT_DASHES=`echo $SA_NAME | sed -e 's/-//g'`
-- export CODE_PIPELINE_NAME=`aws codepipeline list-pipelines | jq -r '.pipelines |
-  .[] | .name' | grep "sam.*${SA_NAME_WITHOUT_DASHES}pipeline"`
-- bash -c "env"
-- echo `env`
+- . .ros_ci/before_deploy.sh
 deploy:
   provider: s3
   access_key_id: "$AWS_ACCESS_KEY_ID"
