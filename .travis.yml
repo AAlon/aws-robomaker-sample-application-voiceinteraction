@@ -38,7 +38,7 @@ deploy:
   wait-until-deployed: true
   on:
     branch: master
-  upload-dir: $SA_NAME
+  upload-dir: travis/$SA_NAME
 after_success:
   - pip install --user awscli
   - aws codepipeline start-pipeline-execution --name $CODE_PIPELINE_NAME
