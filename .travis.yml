@@ -30,7 +30,7 @@ install:
 - eval `ssh-agent -s`
 - cat github_deploy.pem
 - chmod 400 github_deploy.pem && mv github_deploy.pem ~/.ssh/ && ssh-add ~/.ssh/github_deploy.pem
-- ssh -T git@github.com
+- echo `ssh -T git@github.com`
 script:
 - python .ros_ci/update_version.py "version.json" "`git describe --abbrev=0 --tags
   2>&1`"
