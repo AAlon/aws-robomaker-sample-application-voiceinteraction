@@ -28,8 +28,8 @@ before_deploy:
   - cp "version.json" "shared/version.json"
   - pip install --user awscli
   - export S3_BUCKET_NAME=`aws s3 ls | grep travissourcebucket | awk '{print $3}'`
-  - export SA_NAME_NO_DASHES=`echo $SA_NAME | sed -e 's/-//g'`
-  - export CODE_PIPELINE_NAME=`aws codepipeline list-pipelines | jq -r '.pipelines | .[] | .name' | grep "sam.*${NO_DASHES}pipeline"`
+  - export SA_NAME_WITHOUT_DASHES=`echo $SA_NAME | sed -e 's/-//g'`
+  - export CODE_PIPELINE_NAME=`aws codepipeline list-pipelines | jq -r '.pipelines | .[] | .name' | grep "sam.*${SA_NAME_WITHOUT_DASHES}pipeline"`
   - env
 deploy:
   provider: s3
