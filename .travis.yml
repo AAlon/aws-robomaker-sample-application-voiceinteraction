@@ -20,6 +20,9 @@ env:
 install:
 - git clone https://github.com/AAlon/travis-scripts.git .ros_ci
 - .ros_ci/aws_cli_credentials.sh
+- aws s3 ls
+- bash -c "aws s3 ls"
+- echo `aws s3 ls`
 - cat .ros_ci/ssh-config >> ~/.ssh/config
 script:
 - python .ros_ci/update_version.py "version.json" "`git describe --abbrev=0 --tags
